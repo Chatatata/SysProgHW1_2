@@ -189,8 +189,11 @@ increment_axis:
 increment_ordinate:
         add   esp, 4             ; Forward stack pointer one parameter
         pop   eax                ; Fetch current ordinate
-        inc   eax                ; Increment it by one
-        push  eax                ; Push it to the stack
+        pop   ecx                ; Fetch current axis
+        inc   eax                ; Increment ordinate by one
+        mov   ecx, 0             ; Set EDX to zero
+        push  ecx                ; Push axis to the stack
+        push  eax                ; Push ordinate to the stack
         sub   esp, 4             ; Backward stack pointer one parameter
         jmp   add_center         ; Recall routine
 
