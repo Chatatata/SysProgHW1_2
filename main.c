@@ -1,9 +1,6 @@
 //
-//  main.c
-//  SYSHW1_2
-//
-//  Created by Buğra Ekuklu on 17.10.2016.
-//  Copyright © 2016 The Digital Warehouse. All rights reserved.
+//  Bugra Ekuklu
+//  150120016
 //
 
 #include <stdio.h>
@@ -11,9 +8,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-
-#define kFILE_NAME "input2d.txt"
-#define kRULE_FILE_NAME "rule.txt"
 
 #ifdef BUFSIZ
 #undef BUFSIZ
@@ -24,22 +18,16 @@ void generate_r(int **bin_buffer, int bin_buf_frame_width, int bin_buf_frame_hei
 
 int main(int argc, const char * argv[]) {
     FILE *f_ptr = NULL;
-//    char file_name[BUFSIZ] = {0};
     int bin_buffer[BUFSIZ][BUFSIZ];
     int draw_buffer[BUFSIZ][BUFSIZ];
     int rule_buffer[BUFSIZ];
     
-//    printf("Enter the file name containing binary matrix: ");
-//    fgets(file_name, BUFSIZ, stdin);
-//    
-//    if (strlen(file_name) == 0) {
-//        perror("no file name specified");
-//        exit(1);
-//    }
-//    
-//    file_name[strlen(file_name) - 1] = '\0';
+    if (argc != 3) {
+        printf("no file name specified%d\n", argc);
+        exit(1);
+    }
     
-    if (!(f_ptr = fopen(kFILE_NAME, "r"))) {
+    if (!(f_ptr = fopen(argv[1], "r"))) {
         perror("file couldn't be opened");
         exit(9);
     }
@@ -50,9 +38,13 @@ int main(int argc, const char * argv[]) {
     int axis = 0;
     int ordinate = 0;
     int eol_flag = 0;
+    int nl_flag = 0;
     
     while (!feof(f_ptr)) {
         char ch = getc(f_ptr);
+
+        if (ch == '\n' && nl_flag == 0) nl_flag = 1;
+        if (nl_flag == 0) continue;
         
         if (axis == BUFSIZ || ordinate == BUFSIZ) {
             perror("file too long");
@@ -110,10 +102,12 @@ first_bailout:
     //  Release the file handle
     fclose(f_ptr);
     
-    if (!(f_ptr = fopen(kRULE_FILE_NAME, "r"))) {
+    if (!(f_ptr = fopen(argv[2], "r"))) {
         perror("file couldn't be opened");
         exit(9);
     }
+
+    printf("Input matrix: \n");
     
     for (size_t a = 0; a < ordinate; ++a) {
         for (size_t b = 0; b < axis; ++b) {
@@ -123,12 +117,6 @@ first_bailout:
         printf("\n");
     }
 
-    printf("\n");
-
-    for (size_t i = 0; i < ordinate; ++i) {
-        printf("%x\n", bin_buffer[i]);
-    }
-    
     printf("\n");
     
     printf("Reading rule buffer from file...\n");
@@ -174,6 +162,8 @@ first_bailout:
 last_bailout:
     //  Release the file handle
     fclose(f_ptr);
+
+    printf("Rule buffer: ");
     
     for (size_t i = 0; i < index; ++i) {
         printf("%d", rule_buffer[i]);
@@ -181,18 +171,26 @@ last_bailout:
 
     printf("\n");
 
-    printf("Binary buffer addr: %x\naxis addr: %x\nordinate addr: %x\nrule buffer addr: %x\ndraw buffer addr: %x\n", &bin_buffer, &axis, &ordinate, &rule_buffer, &draw_buffer);
+    printf("Binary buffer addr: %x\nAxis addr: %x\nOrdinate addr: %x\nRule buffer addr: %x\nDraw buffer addr: %x\n", &bin_buffer, &axis, &ordinate, &rule_buffer, &draw_buffer);
     
     printf("\n");
-    
-    generate_r((int **)bin_buffer, axis, ordinate, rule_buffer, (int **)draw_buffer);
 
-    for (size_t a = 0; a < ordinate; ++a) {
-        for (size_t b = 0; b < axis; ++b) {
-            printf("%d", draw_buffer[a][b]);
-        }
-        
+    printf("Press any key to generate a matrix or Ctrl-C to exit.\n");
+
+    while (getc(stdin)) {
         printf("\n");
+
+        generate_r((int **)bin_buffer, axis, ordinate, rule_buffer, (int **)draw_buffer);
+
+        for (size_t a = 0; a < ordinate; ++a) {
+            for (size_t b = 0; b < axis; ++b) {
+                printf("%d", draw_buffer[a][b]);
+            }
+
+            memcpy(bin_buffer[a], draw_buffer[a], sizeof(int) * BUFSIZ);
+            
+            printf("\n");
+        }
     }
     
     return 0;

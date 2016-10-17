@@ -1,5 +1,6 @@
         
-
+        ; Bugra Ekuklu
+        ; 150120016
 
         ; Assembly to generating 2D Neumann automata
         ;
