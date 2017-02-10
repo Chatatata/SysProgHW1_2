@@ -1,6 +1,6 @@
 //
-//  Bugra Ekuklu
-//  150120016
+//  Bugra Ekuklu, Babil Ovunc Diler
+//  150120016, 150110803
 //
 
 #include <stdio.h>
@@ -43,7 +43,11 @@ int main(int argc, const char * argv[]) {
     while (!feof(f_ptr)) {
         char ch = getc(f_ptr);
 
-        if (ch == '\n' && nl_flag == 0) nl_flag = 1;
+        if (ch == '\n' && nl_flag == 0) {
+            nl_flag = 1;
+            continue;
+        }
+
         if (nl_flag == 0) continue;
         
         if (axis == BUFSIZ || ordinate == BUFSIZ) {
